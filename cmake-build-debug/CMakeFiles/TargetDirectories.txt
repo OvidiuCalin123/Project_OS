@@ -1,3 +1,0 @@
-C:/UNIVERSITY/OS/Project_OS/cmake-build-debug/CMakeFiles/Project_OS.dir
-C:/UNIVERSITY/OS/Project_OS/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/UNIVERSITY/OS/Project_OS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
