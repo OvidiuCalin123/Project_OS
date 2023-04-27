@@ -16,6 +16,8 @@ int main(int argc, char *argv[]){
 
         showFiles(argc, argv);
 
+    }else{
+        exit(0);
     }
 
 }

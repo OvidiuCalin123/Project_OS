@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include "regularFileOptions.c"
 
 enum fileTypes{regularFile, directory, symbolicLink};
 
@@ -34,6 +35,7 @@ void showMenu(int fileType){
 int showFiles(int argc, char *argv[]){
 
     printf("\n\n");
+
     for(int i = 1; i < argc; i++){
 
         struct stat sb;
@@ -50,6 +52,8 @@ int showFiles(int argc, char *argv[]){
 
             printf("File name: %s  File type: Regular file \n", argv[i]);
             showMenu(regularFile);
+
+            regularFileHandle(argv[i]);
 
         } else if (S_ISDIR(sb.st_mode)) {
 
