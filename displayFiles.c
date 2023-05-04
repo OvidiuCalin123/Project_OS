@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include "regularFileOptions.c"
+#include "directoryOptions.c"
+#include "symlinkOptions.c"
 
 enum fileTypes{regularFile, directory, symbolicLink};
 
@@ -48,7 +50,14 @@ int showFiles(int argc, char *argv[]){
             return -1;
         }
 
-        if (S_ISREG(sb.st_mode)) {
+        if (S_ISLNK(sb.st_mode)) {
+
+            printf("File name: %s  File type: Symbolic link \n", argv[i]);
+            showMenu(symbolicLink);
+            
+            symlinkHandle(argv[i]);
+
+        } else if (S_ISREG(sb.st_mode)) {
 
             printf("File name: %s  File type: Regular file \n", argv[i]);
             showMenu(regularFile);
@@ -60,10 +69,7 @@ int showFiles(int argc, char *argv[]){
             printf("File name: %s  File type: Directory \n", argv[i]);
             showMenu(directory);
 
-        } else if (S_ISLNK(sb.st_mode)) {
-
-            printf("File name: %s  File type: Symbolic link \n", argv[i]);
-            showMenu(symbolicLink);
+            directoryHandle(argv[i]);
 
         }
 
