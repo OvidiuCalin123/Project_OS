@@ -8,4 +8,7 @@ Some key features include:
 - Having processes that run in parallel for faster execution.
 - Creating links and viewing important information about the files.
 
-Currently the project is in progress...
+How to run the project?
+
+- Open a terminal and type: `gcc main.c -o main`
+- After compilation run: `./main {...Arguments}` where 'Arguments' represent different files.
