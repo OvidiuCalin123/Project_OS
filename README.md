@@ -11,4 +11,4 @@ Some key features include:
 How to run the project?
 
 - Open a terminal and type: `gcc main.c -o main`
-- After compilation run: `./main Arguments` where 'Arguments' represent different files.
+- After compilation run: `./main file1 file2 ... fileN` replace with your files
