@@ -16,17 +16,21 @@ void changePermissions(char symbolicLinkName[]){
 
     if((pid_change_permissions=fork()) == 0){
 
-        char changePermsUser[50] = "";
-        char changePermsGroup[50] = "";
-        char changePermsOthers[50] = "";
+        if(open(symbolicLinkName, O_RDONLY) != -1){
 
-        sprintf(changePermsUser, "chmod ug=rwx,o= %s", symbolicLinkName);
-        sprintf(changePermsGroup, "chmod g+s %s", symbolicLinkName);
-        sprintf(changePermsOthers, "chmod o+t %s", symbolicLinkName);
-        
-        system(changePermsUser);
-        system(changePermsGroup);
-        system(changePermsOthers);
+            char changePermsUser[50] = "";
+            char changePermsGroup[50] = "";
+            char changePermsOthers[50] = "";
+
+            sprintf(changePermsUser, "chmod u+rwx,o= %s", symbolicLinkName);
+            sprintf(changePermsGroup, "chmod g+rw,g-x %s", symbolicLinkName);
+            sprintf(changePermsOthers, "chmod o+t %s", symbolicLinkName);
+            
+            system(changePermsUser);
+            system(changePermsGroup);
+            system(changePermsOthers);
+
+        }
 
         exit(pid_change_permissions);
     }
@@ -72,9 +76,16 @@ void symlinkHandle(char symlinkName[]){
             if (strcmp(option, "-n") == 0) {
                 printf("%s \n", symlinkName);
 
-            } else if (strcmp(option, "-l") == 0) {
-                
-                // delete the symlink and return;
+            } if (strcmp(option, "-l") == 0) {
+
+                int status = unlink(symlinkName);
+
+                if (status == 0) {
+                    printf("Symlink deleted successfully.\n");
+                } else {
+                    perror("Could not delete link");
+                    exit(1);
+                }
 
             } else if (strcmp(option, "-d") == 0) {
                 if (stat(symlinkName, &fileStat) == -1) {
