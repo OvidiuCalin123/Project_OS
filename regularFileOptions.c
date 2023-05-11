@@ -12,13 +12,15 @@
 #include "processesHelper.c"
 #include "fileOperations.c"
 
-int pid_execute_option;
+int pid_execute_options_regular;
 int pid_regular_file_extension;
 int score = -1;
 
 void checkRegularFileExtension(char fileName[]) {
 
     if ((pid_regular_file_extension = fork()) == 0) {
+
+        int status;
 
         char *extension = strrchr(fileName, '.');
 
@@ -58,11 +60,11 @@ void checkRegularFileExtension(char fileName[]) {
 
 int checkValidOption(char option[]){
 
-    char *options[] = {"-n", "-d", "-l", "-m", "-a"};
+    char *options[] = {"-n", "-d", "-h", "-l", "-m", "-a"};
 
     int valid_option = 0;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         if (strcmp(option, options[i]) == 0) {
             return 1;
         }
@@ -86,11 +88,11 @@ void regularFileHandle(char fileName[]){
 
         checkRegularFileExtension(fileName);
 
-        if((pid_execute_option=fork()) == 0){
+        if((pid_execute_options_regular=fork()) == 0){
 
             if (strcmp(option, "-n") == 0) {
             
-                printf("%s \n", fileName);
+                printf("%s \n\n", fileName);
 
             } else if (strcmp(option, "-d") == 0) {
                 if (stat(fileName, &fileStat) == -1) {
@@ -101,7 +103,17 @@ void regularFileHandle(char fileName[]){
             
                 printf("\nSize of %s is %ld bytes.\n\n", fileName, fileStat.st_size);
 
-            } else if(strcmp(option, "-m") == 0){
+            } else if(strcmp(option, "-h") == 0){
+
+                if (stat(fileName, &fileStat) == -1) {
+                    perror("stat");
+                    exit(EXIT_FAILURE);
+                }
+
+                printf("\nNumber of hard links: %lu\n\n", fileStat.st_nlink);
+            
+            }
+            else if(strcmp(option, "-m") == 0){
 
                 if (stat(fileName, &fileStat) == -1) {
                     perror("stat");
@@ -134,7 +146,7 @@ void regularFileHandle(char fileName[]){
                 printf("\nOthers:\n");
                 printf("Read - %s\n", (fileStat.st_mode & S_IROTH) ? "yes" : "no");
                 printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
-                printf("Exec - %s\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
+                printf("Exec - %s\n\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
 
             } else if (strcmp(option, "-l") == 0) {
 
@@ -148,31 +160,27 @@ void regularFileHandle(char fileName[]){
                     exit(EXIT_FAILURE);
                 }
 
+                printf("\n");
+
             }
 
-            exit(pid_execute_option);
+            exit(pid_execute_options_regular);
 
-        } else if(pid_execute_option < 0){ 
+        } else if(pid_execute_options_regular < 0){ 
 
             perror("fork error");
             exit(EXIT_FAILURE);
         }
 
         sleep(1);
+        
+        int status;
 
-        if(pid_regular_file_extension > 0){
-
-            waitForProcessToFinish(pid_regular_file_extension);
-
-        }
+        waitForProcessToFinish(pid_execute_options_regular);
 
         sleep(1);
 
-        if(pid_execute_option > 0){
-            
-            waitForProcessToFinish(pid_execute_option);
-            
-        }
+        waitForProcessToFinish(pid_regular_file_extension);
 
         sleep(1);
 

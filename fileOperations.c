@@ -34,7 +34,7 @@ void writeScoreToFile(char fileName[], int score){
 
 void printNrOfFileLines(char fileName[]){
     
-    printf("\nNumber of Lines:\n\n");
+    printf("\nNumber of Lines: ");
 
     int fp = open(fileName, O_RDONLY);
     if (fp == -1) {

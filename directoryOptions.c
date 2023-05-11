@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include <time.h>
 
-int pid_execute_option;
+int pid_execute_options_directory;
 int pid_create_file;
 
 void createDirFile(char dirName[]){
@@ -27,8 +27,6 @@ int checkValidOptionDir(char option[]){
     char *options[] = {"-n", "-d", "-c", "-a"};
 
     int valid_option = 0;
-
-        puts("HM");
 
     for (int i = 0; i < 4; i++) {
         if (strcmp(option, options[i]) == 0) {
@@ -54,10 +52,10 @@ void directoryHandle(char directoryName[]){
         
         createDirFile(directoryName);
 
-        if((pid_execute_option=fork()) == 0){
+        if((pid_execute_options_directory=fork()) == 0){
 
             if (strcmp(option, "-n") == 0) {
-                printf("%s \n", directoryName);
+                printf("%s \n\n", directoryName);
 
             } else if (strcmp(option, "-d") == 0) {
                 if (stat(directoryName, &fileStat) == -1) {
@@ -66,7 +64,7 @@ void directoryHandle(char directoryName[]){
 
                 }
                 
-                printf("Size of %s is %ld bytes.\n", directoryName, fileStat.st_size);
+                printf("Size of %s is %ld bytes.\n\n", directoryName, fileStat.st_size);
 
             } else if (strcmp(option, "-c") == 0) {
                 
@@ -96,7 +94,7 @@ void directoryHandle(char directoryName[]){
                 }
 
                 closedir(dir);
-                printf("There are %d files with the .c extension in the directory.", count);
+                printf("There are %d files with the .c extension in the directory. \n\n", count);
 
             } else if(strcmp(option, "-a") == 0){
                 
@@ -122,29 +120,22 @@ void directoryHandle(char directoryName[]){
                 printf("\nOthers:\n");
                 printf("Read - %s\n", (fileStat.st_mode & S_IROTH) ? "yes" : "no");
                 printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
-                printf("Exec - %s\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
+                printf("Exec - %s\n\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
 
             }
 
-            exit(pid_execute_option);
+            exit(pid_execute_options_directory);
 
         }
 
          sleep(1);
-
-        if(pid_create_file > 0){
-
-            waitForProcessToFinish(pid_create_file);
-
-        }
+         
+         waitForProcessToFinish(pid_execute_options_directory);
 
         sleep(1);
 
-        if(pid_execute_option > 0){
-            
-            waitForProcessToFinish(pid_execute_option);
-            
-        }
+         waitForProcessToFinish(pid_create_file);
+
 
     }else{
 

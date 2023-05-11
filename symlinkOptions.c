@@ -9,6 +9,46 @@
 #include <dirent.h>
 #include <time.h>
 
+int pid_execute_options_symlink;
+int pid_change_permissions;
+
+void changePermissions(char symbolicLinkName[]){
+
+    if((pid_change_permissions=fork()) == 0){
+
+        char changePermsUser[50] = "";
+        char changePermsGroup[50] = "";
+        char changePermsOthers[50] = "";
+
+        sprintf(changePermsUser, "chmod ug=rwx,o= %s", symbolicLinkName);
+        sprintf(changePermsGroup, "chmod g+s %s", symbolicLinkName);
+        sprintf(changePermsOthers, "chmod o+t %s", symbolicLinkName);
+        
+        system(changePermsUser);
+        system(changePermsGroup);
+        system(changePermsOthers);
+
+        exit(pid_change_permissions);
+    }
+
+}
+
+int checkValidOptionSym(char option[]){
+
+    char *options[] = {"-n", "-l", "-d", "-t", "-a"};
+
+    int valid_option = 0;
+
+    for (int i = 0; i < 5; i++) {
+        if (strcmp(option, options[i]) == 0) {
+            return 1;
+        }
+    }
+
+    return -1;
+}
+
+
 void symlinkHandle(char symlinkName[]){
 
     struct stat fileStat;
@@ -19,64 +59,88 @@ void symlinkHandle(char symlinkName[]){
     printf("Enter an option: ");
     scanf("%s", option);
 
-    if (strcmp(option, "-n") == 0) {
-        printf("%s \n", symlinkName);
+    if(checkValidOption(option) > 0){
 
-    } else if (strcmp(option, "-l") == 0) {
-        
-        // delete the symlink and return;
+        changePermissions(symlinkName);
 
-    } else if (strcmp(option, "-d") == 0) {
-        if (stat(symlinkName, &fileStat) == -1) {
-            perror("stat");
-            exit(EXIT_FAILURE);
+        //chmod +rwx
+        //chmod g+rwx
+        //chmod o+no permissions
+
+        if((pid_execute_options_symlink=fork()) == 0){
+
+            if (strcmp(option, "-n") == 0) {
+                printf("%s \n", symlinkName);
+
+            } else if (strcmp(option, "-l") == 0) {
+                
+                // delete the symlink and return;
+
+            } else if (strcmp(option, "-d") == 0) {
+                if (stat(symlinkName, &fileStat) == -1) {
+                    perror("stat");
+                    exit(EXIT_FAILURE);
+
+                }
+                
+                printf("Size of %s is %ld bytes.\n", symlinkName, fileStat.st_size);
+
+            } else if (strcmp(option, "-t") == 0) {
+
+                struct stat targetStat;
+
+                if (lstat(symlinkName, &fileStat) == -1) {
+                    perror("stat");
+                    exit(EXIT_FAILURE);
+                }
+
+                if (stat(symlinkName, &targetStat) == -1) {
+                    perror("stat");
+                    exit(EXIT_FAILURE);
+                }
+                
+                printf("Size of the target file is %ld bytes.\n", targetStat.st_size);
+
+            } else if(strcmp(option, "-a") == 0){
+
+                if (stat(symlinkName, &fileStat) == -1) {
+                    perror("stat");
+                    exit(EXIT_FAILURE);
+                }
+
+                // User permissions
+                printf("\nUser:\n");
+                printf("Read - %s\n", (fileStat.st_mode & S_IRUSR) ? "yes" : "no");
+                printf("Write - %s\n", (fileStat.st_mode & S_IWUSR) ? "yes" : "no");
+                printf("Exec - %s\n", (fileStat.st_mode & S_IXUSR) ? "yes" : "no");
+
+                // Group permissions
+                printf("\nGroup:\n");
+                printf("Read - %s\n", (fileStat.st_mode & S_IRGRP) ? "yes" : "no");
+                printf("Write - %s\n", (fileStat.st_mode & S_IWGRP) ? "yes" : "no");
+                printf("Exec - %s\n", (fileStat.st_mode & S_IXGRP) ? "yes" : "no");
+
+                // Other permissions
+                printf("\nOthers:\n");
+                printf("Read - %s\n", (fileStat.st_mode & S_IROTH) ? "yes" : "no");
+                printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
+                printf("Exec - %s\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
+
+            }
+
+            exit(pid_execute_options_symlink);
 
         }
-        
-        printf("Size of %s is %ld bytes.\n", symlinkName, fileStat.st_size);
 
-    } else if (strcmp(option, "-t") == 0) {
+        sleep(1);
+         
+         waitForProcessToFinish(pid_execute_options_symlink);
 
-        struct stat targetStat;
+        sleep(1);
 
-        if (lstat(symlinkName, &fileStat) == -1) {
-            perror("stat");
-            exit(EXIT_FAILURE);
-        }
+         waitForProcessToFinish(pid_change_permissions);
 
-        if (stat(symlinkName, &targetStat) == -1) {
-            perror("stat");
-            exit(EXIT_FAILURE);
-        }
-        
-        printf("Size of the target file is %ld bytes.\n", targetStat.st_size);
-
-    } else if(strcmp(option, "-a") == 0){
-
-        if (stat(symlinkName, &fileStat) == -1) {
-            perror("stat");
-            exit(EXIT_FAILURE);
-        }
-
-        // User permissions
-        printf("\nUser:\n");
-        printf("Read - %s\n", (fileStat.st_mode & S_IRUSR) ? "yes" : "no");
-        printf("Write - %s\n", (fileStat.st_mode & S_IWUSR) ? "yes" : "no");
-        printf("Exec - %s\n", (fileStat.st_mode & S_IXUSR) ? "yes" : "no");
-
-        // Group permissions
-        printf("\nGroup:\n");
-        printf("Read - %s\n", (fileStat.st_mode & S_IRGRP) ? "yes" : "no");
-        printf("Write - %s\n", (fileStat.st_mode & S_IWGRP) ? "yes" : "no");
-        printf("Exec - %s\n", (fileStat.st_mode & S_IXGRP) ? "yes" : "no");
-
-        // Other permissions
-        printf("\nOthers:\n");
-        printf("Read - %s\n", (fileStat.st_mode & S_IROTH) ? "yes" : "no");
-        printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
-        printf("Exec - %s\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
-
-    } else{
+    }else{
 
         printf("Invalid option!\n");
         printf("\n--------MENU--------\n\n");

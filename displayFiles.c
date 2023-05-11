@@ -44,7 +44,7 @@ int showFiles(int argc, char *argv[]){
 
         printf("\n");
 
-        if (stat(argv[i], &sb) == -1) {
+        if (lstat(argv[i], &sb) == -1) {
 
             perror("Unknown Error");
             return -1;
