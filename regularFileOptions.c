@@ -86,7 +86,25 @@ void regularFileHandle(char fileName[]){
 
     if(checkValidOption(option) > 0){
 
-        checkRegularFileExtension(fileName);
+        if(strcmp(option, "-l") == 0){
+
+            char linkName[100];
+
+                printf("\nEnter the name of the symbolic link: ");
+                scanf("%s", linkName);
+
+                if (symlink(fileName, linkName) == -1) {
+                    perror("symlink");
+                    exit(EXIT_FAILURE);
+                }
+
+                printf("\n");
+
+                checkRegularFileExtension(fileName);
+
+        }else{
+            checkRegularFileExtension(fileName);
+        }
 
         if((pid_execute_options_regular=fork()) == 0){
 
@@ -148,21 +166,7 @@ void regularFileHandle(char fileName[]){
                 printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
                 printf("Exec - %s\n\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
 
-            } else if (strcmp(option, "-l") == 0) {
-
-                char linkName[100];
-
-                printf("\nEnter the name of the symbolic link: ");
-                scanf("%s", linkName);
-
-                if (symlink(fileName, linkName) == -1) {
-                    perror("symlink");
-                    exit(EXIT_FAILURE);
-                }
-
-                printf("\n");
-
-            }
+            } 
 
             exit(pid_execute_options_regular);
 

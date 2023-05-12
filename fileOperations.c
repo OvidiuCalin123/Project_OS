@@ -27,48 +27,42 @@ void writeScoreToFile(char fileName[], int score){
     snprintf(buf, sizeof(buf), "%s: %d\n", fileName, score);
     write(fd, buf, strlen(buf));
 
-    // Close the file
     close(fd);
 
 }
 
-void printNrOfFileLines(char fileName[]){
-    
-    printf("\nNumber of Lines: ");
+void printNrOfFileLines(char filename[]) {
 
-    int fp = open(fileName, O_RDONLY);
-    if (fp == -1) {
-        perror("open");
-        exit(EXIT_FAILURE);
+    FILE *fp;
+    char buffer[100];
+    int count = 0;
+
+    fp = fopen(filename, "r");
+
+    if (fp == NULL) {
+        printf("Error: Failed to open file.\n");
     }
 
-    char buffer[1024];
-    int numLines = 0;
-    int numBytes;
-
-    while ((numBytes = read(fp, buffer, 1024)) > 0) {
-        for (int i = 0; i < numBytes; i++) {
-            if (buffer[i] == '\n') {
-                numLines++;
-            }
-        }
-        
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        count++;
     }
 
-    if (numBytes == -1) {
-        perror("read");
-        exit(EXIT_FAILURE);
-    }
+    fclose(fp);
 
-    printf("%d\n\n", numLines);
-    close(fp);
+    printf("\nNumber of lines: %d\n\n", count);
+
 }
 
-int createFileD(char dirName[]){
+int createFileD(char dirName[]) {
+
+    int len = strlen(dirName);
+    if (dirName[len-1] == '/') {
+        dirName[len-1] = '\0';
+    }
 
     char filename[256];
 
-    snprintf(filename, sizeof(filename), "%s_file.txt", dirName);
+    sprintf(filename, "%s_file.txt", dirName);
 
     int fd = open(filename, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
 
@@ -79,8 +73,8 @@ int createFileD(char dirName[]){
 
     const char* msg = "\n";
 
-    size_t len = strlen(msg);
-    ssize_t written = write(fd, msg, len);
+    size_t msg_len = strlen(msg);
+    ssize_t written = write(fd, msg, msg_len);
 
     if (written == -1) {
         printf("Error: cannot write to file %s\n", filename);
@@ -89,4 +83,5 @@ int createFileD(char dirName[]){
     }
 
     close(fd);
+    return 0;
 }

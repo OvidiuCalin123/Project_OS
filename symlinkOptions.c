@@ -44,6 +44,7 @@ int checkValidOptionSym(char option[]){
     int valid_option = 0;
 
     for (int i = 0; i < 5; i++) {
+
         if (strcmp(option, options[i]) == 0) {
             return 1;
         }
@@ -63,27 +64,23 @@ void symlinkHandle(char symlinkName[]){
     printf("Enter an option: ");
     scanf("%s", option);
 
-    if(checkValidOption(option) > 0){
+    if(checkValidOptionSym(option) > 0){
 
         changePermissions(symlinkName);
-
-        //chmod +rwx
-        //chmod g+rwx
-        //chmod o+no permissions
 
         if((pid_execute_options_symlink=fork()) == 0){
 
             if (strcmp(option, "-n") == 0) {
-                printf("%s \n", symlinkName);
+                printf("%s \n\n", symlinkName);
 
             } if (strcmp(option, "-l") == 0) {
 
                 int status = unlink(symlinkName);
 
                 if (status == 0) {
-                    printf("Symlink deleted successfully.\n");
+                    printf("Symlink deleted successfully.\n\n");
                 } else {
-                    perror("Could not delete link");
+                    perror("Could not delete link\n\n");
                     exit(1);
                 }
 
@@ -94,7 +91,7 @@ void symlinkHandle(char symlinkName[]){
 
                 }
                 
-                printf("Size of %s is %ld bytes.\n", symlinkName, fileStat.st_size);
+                printf("Size of %s is %ld bytes.\n\n", symlinkName, fileStat.st_size);
 
             } else if (strcmp(option, "-t") == 0) {
 
@@ -110,7 +107,7 @@ void symlinkHandle(char symlinkName[]){
                     exit(EXIT_FAILURE);
                 }
                 
-                printf("Size of the target file is %ld bytes.\n", targetStat.st_size);
+                printf("Size of the target file is %ld bytes.\n\n", targetStat.st_size);
 
             } else if(strcmp(option, "-a") == 0){
 
@@ -135,7 +132,7 @@ void symlinkHandle(char symlinkName[]){
                 printf("\nOthers:\n");
                 printf("Read - %s\n", (fileStat.st_mode & S_IROTH) ? "yes" : "no");
                 printf("Write - %s\n", (fileStat.st_mode & S_IWOTH) ? "yes" : "no");
-                printf("Exec - %s\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
+                printf("Exec - %s\n\n", (fileStat.st_mode & S_IXOTH) ? "yes" : "no");
 
             }
 

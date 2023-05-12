@@ -136,6 +136,8 @@ void directoryHandle(char directoryName[]){
 
          waitForProcessToFinish(pid_create_file);
 
+         sleep(1);
+
 
     }else{
 

@@ -40,41 +40,48 @@ int showFiles(int argc, char *argv[]){
 
     for(int i = 1; i < argc; i++){
 
-        struct stat sb;
+        if(open(argv[i], O_RDONLY) > 0){
 
-        printf("\n");
+            struct stat sb;
 
-        if (lstat(argv[i], &sb) == -1) {
+            printf("\n");
 
-            perror("Unknown Error");
-            return -1;
-        }
+            if (lstat(argv[i], &sb) == -1) {
 
-        if (S_ISLNK(sb.st_mode)) {
+                perror("Unknown Error");
+                return -1;
+            }
 
-            printf("File name: %s  File type: Symbolic link \n", argv[i]);
-            showMenu(symbolicLink);
-            
-            symlinkHandle(argv[i]);
+            if (S_ISLNK(sb.st_mode)) {
 
-        } else if (S_ISREG(sb.st_mode)) {
+                printf("File name: %s  File type: Symbolic link \n", argv[i]);
+                showMenu(symbolicLink);
+                
+                symlinkHandle(argv[i]);
 
-            printf("File name: %s  File type: Regular file \n", argv[i]);
-            showMenu(regularFile);
+            } else if (S_ISREG(sb.st_mode)) {
 
-            regularFileHandle(argv[i]);
+                printf("File name: %s  File type: Regular file \n", argv[i]);
+                showMenu(regularFile);
 
-        } else if (S_ISDIR(sb.st_mode)) {
+                regularFileHandle(argv[i]);
 
-            printf("File name: %s  File type: Directory \n", argv[i]);
-            showMenu(directory);
+            } else if (S_ISDIR(sb.st_mode)) {
 
-            directoryHandle(argv[i]);
+                printf("File name: %s  File type: Directory \n", argv[i]);
+                showMenu(directory);
 
+                directoryHandle(argv[i]);
+
+            }
+
+        }else{
+
+            printf("\nFile %s does not exist.\n\n", argv[i]);
         }
 
     }
 
-    printf("\n\n\n");
+    printf("\n\n");
 
 }
