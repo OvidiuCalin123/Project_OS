@@ -39,46 +39,33 @@ void waitForProcessToFinish(int processId){
 
 int computeScore(char fileName[]){
     
-    char command[256];
+        char buffer[50];
+        sprintf(buffer, "bash script.sh %s", fileName);
+        system(buffer);
+        
+        int first_val, second_val;
 
-    snprintf(command, 256, "gcc -Wall -Wextra -pedantic -std=c99 -fsyntax-only %s 2>&1 | grep -E -i '(error|warning):' > errors_warnings.txt", fileName);
-    system(command);
-
-    FILE *fp = fopen("errors_warnings.txt", "r");
-    if (fp == NULL) {
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    int num_errors = 0;
-    int num_warnings = 0;
-
-    char line[256];
-
-    while (fgets(line, 256, fp) != NULL) {
-        if (strstr(line, "error") != NULL) {
-            num_errors++;
-        } else if (strstr(line, "warning") != NULL) {
-            num_warnings++;
+        FILE *fp1 = fopen("log.txt", "r");
+        if (fp1 == NULL) {
+            printf("Error opening file\n");
         }
-    }
 
-    fclose(fp);
-    remove("errors_warnings.txt");
+        fscanf(fp1, "%d %d", &first_val, &second_val);
 
-    int score = 0;
+        int score = 0;
 
-    if (num_errors == 0 && num_warnings <= 10) {
-        score = 10 + 8 * (10 - num_warnings) / 10;
-    } else if (num_errors == 0 && num_warnings > 10) {
-        score = 2;
-    } else {
-        score = 1;
-    }
+        if (first_val == 0 && second_val == 0) {
+            score = 10;
+        } else if (first_val > 0) {
+            score = 1;
+        } else if (second_val > 10) { //pri
+            score = 2;
+        } else if(second_val <= 10){
+            score = 2 + 8 * (10 - second_val) / 10;
+        }
 
-    // printf("\nNumber of errors: %d\n", num_errors);
-    // printf("Number of warnings: %d\n", num_warnings);
-    // printf("Score: %d\n", score);
+        fclose(fp1);
+
 
     return score;
 }
